@@ -66,9 +66,8 @@
             <p id="employee-id"></p>
         </footer>
     </div>
-
 <script>
-    // === KODE JAVASCRIPT UNTUK ADMIN ===
+    // === KODE JAVASCRIPT UNTUK ADMIN (VERSI FINAL DIPERBAIKI) ===
     const BIN_URL = 'https://api.jsonbin.io/v3/b/686a209f8a456b7966bc2700'; // URL Bin TANPA /latest
     const API_KEY = '$2a$10$rUbScOvXqsEa7/LNpFRpKejH2K6wCDpoMGSzeCFvLk0qnKE770sfm';
 
@@ -82,7 +81,11 @@
 
     async function populateData() {
         try {
-            const response = await fetch(BIN_URL + '/latest', { headers: { 'X-Bin-Meta': 'false', 'Cache-Control': 'no-cache' } });
+            // === INI BAGIAN YANG DIPERBAIKI ===
+            // Menghapus headers yang tidak perlu untuk request publik
+            const response = await fetch(BIN_URL + '/latest');
+            // ===================================
+            
             if (!response.ok) throw new Error('Data tidak ditemukan (' + response.status + ')');
             currentData = await response.json();
 
@@ -90,7 +93,7 @@
             profilePic.src = currentData.fotoUrl;
             profileName.textContent = currentData.nama;
             employeeId.textContent = currentData.idKaryawan;
-
+            
             linksContainer.innerHTML = '';
             currentData.links.forEach(link => {
                 const a = document.createElement('a');
