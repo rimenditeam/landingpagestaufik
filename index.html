@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memuat...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #55a6a5; /* Warna teal utama */
+            --secondary-color: #3d8887; /* Warna tombol */
+            --text-color-light: #ffffff;
+            --text-color-dark: #333333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            background-image: url('https://github.com/rimenditeam/landing-pages-Taufik/blob/fa253b606c500e2476ee994e19dbb9689f4a933d/images/pattern-fgr.png'); /* Ganti dengan URL watermark */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+
+        .main-container {
+            max-width: 480px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            background-image: url('URL_PATTERN_HEADER_ANDA'); /* Ganti dengan URL pattern header */
+            padding: 20px;
+            padding-bottom: 80px; /* Beri ruang untuk foto profil */
+            position: relative;
+        }
+        
+        .logo {
+            width: 150px;
+        }
+
+        main {
+            text-align: center;
+            margin-top: -60px; /* Efek tumpuk */
+            z-index: 10;
+        }
+
+        #profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+
+        #profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color-dark);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        #links-container {
+            padding: 0 20px;
+        }
+
+        .link-button {
+            display: block;
+            background-color: var(--secondary-color);
+            color: var(--text-color-light);
+            text-decoration: none;
+            padding: 15px;
+            margin: 15px auto;
+            border-radius: 50px; /* Tombol pil */
+            font-weight: 500;
+            font-size: 1.1rem;
+            max-width: 320px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .link-button:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color-light);
+            text-align: center;
+            padding: 15px;
+            margin-top: auto; /* Mendorong footer ke bawah */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <img src="Black-RPS-online.png" alt="Logo Rimendi" class="logo">
+        </header>
+
+        <main>
+            <img src="profile-taufik.png" alt="Foto Profil" id="profile-pic">
+            <h1 id="profile-name"></h1>
+            <nav id="links-container">
+                </nav>
+        </main>
+
+        <footer>
+            <p id="employee-id"></p>
+        </footer>
+    </div>
+    
+<script>
+        // --- GANTI DENGAN URL BIN ANDA ---
+        const BIN_URL = 'https://api.jsonbin.io/v3/b/686a25568a456b7966bc2867/latest'; // Tambahkan /latest
+
+        // Seleksi elemen-elemen HTML
+        const profilePic = document.getElementById('profile-pic');
+        const profileName = document.getElementById('profile-name');
+        const linksContainer = document.getElementById('links-container');
+        const employeeId = document.getElementById('employee-id');
+        const pageTitle = document.querySelector('title');
+
+        // Fungsi untuk mengambil dan menampilkan data
+        async function populateData() {
+            try {
+                const response = await fetch(BIN_URL, { headers: { 'X-Bin-Meta': 'false' } });
+                if (!response.ok) throw new Error('Data tidak ditemukan');
+                const data = await response.json();
+
+                // Mengisi data ke elemen HTML
+                pageTitle.textContent = data.nama + ' - Rimendi Studio';
+                profilePic.src = data.fotoUrl;
+                profileName.textContent = data.nama;
+                employeeId.textContent = data.idKaryawan;
+                
+                // Kosongkan container link sebelum mengisi
+                linksContainer.innerHTML = ''; 
+
+                // Buat tombol untuk setiap link dalam data
+                data.links.forEach(link => {
+                    const a = document.createElement('a');
+                    a.href = link.url;
+                    a.textContent = link.judul;
+                    a.className = 'link-button';
+                    a.target = '_blank'; // Buka di tab baru
+                    linksContainer.appendChild(a);
+                });
+
+            } catch (error) {
+                profileName.textContent = 'Gagal memuat data';
+                console.error('Error:', error);
+            }
+        }
+
+        // Panggil fungsi saat halaman dimuat
+        populateData();
+    </script>
+
+    </body>
+</html>
