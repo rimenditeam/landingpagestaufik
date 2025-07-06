@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memuat...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #55a6a5;
+            --secondary-color: #3d8887;
+            --text-color-light: #ffffff;
+            --text-color-dark: #333333;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            /* URL GAMBAR RAW YANG BENAR */
+            background-image: url('https://raw.githubusercontent.com/rimenditeam/landingpagestaufik/main/images/pattern-fgr.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+        .main-container { max-width: 480px; margin: auto; display: flex; flex-direction: column; min-height: 100vh; }
+        header {
+            background-color: var(--primary-color);
+            padding: 20px; padding-bottom: 80px; position: relative;
+        }
+        .logo { width: 150px; }
+        main { text-align: center; margin-top: -60px; z-index: 10; }
+        #profile-pic { width: 120px; height: 120px; border-radius: 50%; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit: cover; }
+        #profile-name { font-size: 2rem; font-weight: 700; color: var(--text-color-dark); margin-top: 10px; margin-bottom: 20px; }
+        #links-container { padding: 0 20px; }
+        .link-button { display: block; background-color: var(--secondary-color); color: var(--text-color-light); text-decoration: none; padding: 15px; margin: 15px auto; border-radius: 50px; font-weight: 500; font-size: 1.1rem; max-width: 320px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s ease; }
+        .link-button:hover { transform: scale(1.05); }
+        footer { background-color: var(--primary-color); color: var(--text-color-light); text-align: center; padding: 15px; margin-top: auto; }
+        .edit-button { display: block; background-color: #e0e0e0; color: #333; border: 2px solid var(--secondary-color); text-align: center; text-decoration: none; padding: 15px; margin: 15px auto; border-radius: 50px; font-weight: 700; transition: all 0.2s ease; }
+        .edit-button:hover { background-color: var(--secondary-color); color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .modal-content input[type="text"] { width: 95%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; }
+        .modal-content .link-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .modal-content .link-item input { margin-bottom: 0; }
+        .modal-content .link-item button { background-color: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <img src="https://raw.githubusercontent.com/rimenditeam/landingpagestaufik/main/images/Black-RPS-online.png" alt="Logo Rimendi" class="logo">
+        </header>
+        <main>
+            <img src="" alt="Foto Profil" id="profile-pic">
+            <h1 id="profile-name"></h1>
+            <nav id="links-container"></nav>
+            <div style="padding: 0 20px; max-width: 320px; margin: 20px auto;">
+                <a href="#" id="edit-btn" class="edit-button">Edit & Add+</a>
+            </div>
+        </main>
+        <footer>
+            <p id="employee-id"></p>
+        </footer>
+    </div>
+    
+<script>
+    // === KODE JAVASCRIPT UNTUK ADMIN (VERSI FINAL DIPERBAIKI) ===
+    const BIN_URL = 'https://api.jsonbin.io/v3/b/686a209f8a456b7966bc2700';
+    const API_KEY = '$2a$10$rUbScOvXqsEa7/LNpFRpKejH2K6wCDpoMGSzeCFvLk0qnKE770sfm';
 
+    const profilePic = document.getElementById('profile-pic');
+    const profileName = document.getElementById('profile-name');
+    const linksContainer = document.getElementById('links-container');
+    const employeeId = document.getElementById('employee-id');
+    const pageTitle = document.querySelector('title');
+    const editBtn = document.getElementById('edit-btn');
+    let currentData = {};
+
+    async function populateData() {
+        try {
+            // === INI BAGIAN YANG DIPERBAIKI ===
+            const response = await fetch(BIN_URL + '/latest');
+            // ===================================
+            
+            if (!response.ok) throw new Error('Data tidak ditemukan (' + response.status + ')');
+            currentData = await response.json();
+
+            pageTitle.textContent = currentData.nama + ' - Rimendi Studio';
+            profilePic.src = currentData.fotoUrl;
+            profileName.textContent = currentData.nama;
+            employeeId.textContent = currentData.idKaryawan;
+            
+            linksContainer.innerHTML = '';
+            currentData.links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url; a.textContent = link.judul;
+                a.className = 'link-button'; a.target = '_blank';
+                linksContainer.appendChild(a);
+            });
+        } catch (error) {
+            profileName.textContent = 'Gagal memuat data';
+            console.error('Error saat populateData:', error);
+        }
+    }
+
+    function createAdminModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
+        modal.innerHTML = `
+            <h2>Edit Konten</h2>
+            <label>Nama:</label>
+            <input type="text" id="admin-nama" value="${currentData.nama}">
+            <label>URL Foto Profil:</label>
+            <input type="text" id="admin-fotoUrl" value="${currentData.fotoUrl}">
+            <label>ID Karyawan:</label>
+            <input type="text" id="admin-idKaryawan" value="${currentData.idKaryawan}">
+            <hr><h4>Edit Links</h4>
+            <div id="admin-links-container"></div>
+            <button id="add-new-link" type="button" style="background:#2980b9; color:white; border:none; padding:10px; cursor:pointer;">+ Tambah Link Baru</button>
+            <hr>
+            <button id="save-changes" type="button" style="background:#27ae60; color:white; border:none; padding:15px; cursor:pointer;">Simpan Perubahan</button>
+            <button id="cancel-edit" type="button" style="background:#7f8c8d; color:white; border:none; padding:15px; cursor:pointer;">Batal</button>
+            <p id="modal-status"></p>
+        `;
+        document.body.appendChild(overlay);
+        overlay.appendChild(modal);
+
+        const adminLinksContainer = document.getElementById('admin-links-container');
+        if (currentData.links && Array.isArray(currentData.links)) {
+            currentData.links.forEach(link => addLinkInput(adminLinksContainer, link.judul, link.url));
+        }
+
+        document.getElementById('add-new-link').addEventListener('click', () => addLinkInput(adminLinksContainer));
+        document.getElementById('cancel-edit').addEventListener('click', () => document.body.removeChild(overlay));
+        document.getElementById('save-changes').addEventListener('click', saveData);
+        adminLinksContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-link-btn')) {
+                e.target.parentElement.remove();
+            }
+        });
+    }
+
+    function addLinkInput(container, judul = '', url = '') {
+        const div = document.createElement('div');
+        div.className = 'link-item';
+        div.innerHTML = `
+            <input type="text" placeholder="Judul" class="admin-link-judul" value="${judul}">
+            <input type="text" placeholder="URL" class="admin-link-url" value="${url}">
+            <button type="button" class="delete-link-btn">Hapus</button>
+        `;
+        container.appendChild(div);
+    }
+
+    async function saveData() {
+        const statusEl = document.getElementById('modal-status');
+        statusEl.textContent = 'Menyimpan...';
+
+        const newLinks = [];
+        document.querySelectorAll('.link-item').forEach(item => {
+            const judul = item.querySelector('.admin-link-judul').value;
+            const url = item.querySelector('.admin-link-url').value;
+            if (judul && url) newLinks.push({ judul, url });
+        });
+
+        const newData = {
+            nama: document.getElementById('admin-nama').value,
+            fotoUrl: document.getElementById('admin-fotoUrl').value,
+            idKaryawan: document.getElementById('admin-idKaryawan').value,
+            links: newLinks
+        };
+
+        try {
+            const response = await fetch(BIN_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                body: JSON.stringify(newData)
+            });
+            if (!response.ok) throw new Error('Gagal menyimpan ke server (' + response.status + ')');
+            statusEl.textContent = 'Berhasil! Halaman akan dimuat ulang...';
+            setTimeout(() => location.reload(), 1500);
+        } catch (error) {
+            statusEl.textContent = 'Error saat menyimpan: ' + error.message;
+        }
+    }
+
+    editBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentData && currentData.nama) { // Hanya buka modal jika data sudah dimuat
+            createAdminModal();
+        } else {
+            alert('Data belum siap, silakan refresh halaman.');
+        }
+    });
+
+    populateData();
+</script>
+</body>
+</html>
